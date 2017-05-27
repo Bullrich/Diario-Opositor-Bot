@@ -30,13 +30,13 @@ def get_user_comment(r, username):
 
 
 def comment_and_save(comment, comment_body):
-    print id
     try:
         reddit_commenter.reply_to_comment(comment, comment_body)
         # Taking some time to check if everything went accordly
         time.sleep(10)
         reddit_commenter.save_comment_id_to_file(comment.id)
         # If everything was successfull, wait for ten minutes
+        print "Successfully commented. Taking a break."
         time.sleep(600)
 
     except Exception, e:
@@ -85,5 +85,7 @@ def start_reading_process():
                         #   print "--- " + new[0] + ": " + new[1]['text'].split('\n', 1)[0]
                     else:
                         print "--- No news in this platform"
+        print "Finished a round. Taking a break before starting again."
         time.sleep(300)
+        print "Finished the loop. Starting again."
         start_reading_process()
