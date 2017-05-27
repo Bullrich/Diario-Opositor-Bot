@@ -123,7 +123,7 @@ telam = ["http://www.telam.com.ar/rss2/ultimasnoticias.xml",
          "http://www.telam.com.ar/rss2/cultura.xml",
          "http://www.telam.com.ar/rss2/educacion.xml"]
 
-rss = {"clarin": clarin_filtrado, "lanacion": la_nacion_filtrado,
-       "perfil": perfil, "infobae": infobae,
-       "la razon": la_razon, "minuto uno": minuto_uno,
-       "telam": telam}
+rss = {"Clarin": clarin_filtrado, "La Nacion": la_nacion_filtrado,
+       "perfil": perfil, "Infobae": infobae,
+       "la Razon": la_razon, "Minuto Uno": minuto_uno,
+       "Telam": telam}

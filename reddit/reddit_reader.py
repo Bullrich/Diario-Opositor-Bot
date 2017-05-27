@@ -24,9 +24,9 @@ def get_user_comment(r, username):
         if " " in append_text:
             headers.append(u_comment)
             # How many comentaries
-            if i > 15:
+            if i > 30:
                 break
-    return headers
+    return reversed(headers)
 
 
 def comment_and_save(comment, comment_body):
@@ -85,3 +85,5 @@ def start_reading_process():
                         #   print "--- " + new[0] + ": " + new[1]['text'].split('\n', 1)[0]
                     else:
                         print "--- No news in this platform"
+        time.sleep(300)
+        start_reading_process()
