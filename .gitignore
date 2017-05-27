@@ -102,3 +102,4 @@ ENV/
 
 # Custom
 .idea
+configs/credentials.py

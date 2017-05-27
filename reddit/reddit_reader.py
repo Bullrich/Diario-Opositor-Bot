@@ -53,7 +53,8 @@ def format_comment(news):
         noticias_relacionadas += '[' + new[1]['text'].split('\n', 1)[0] + ']'
         noticias_relacionadas += '(' + new[1]['link'] + ')\n\n'
     footer = "---\n\nDiario Opositor Bot, distintas perspectivas de la misma noticia"
-    return header + noticias_relacionadas + footer
+    link_al_source = "\n\n[Codigo fuente](https://github.com/Bullrich/Diario-Opositor-Bot)"
+    return header + noticias_relacionadas + footer + link_al_source
 
 
 not_allowed_ends = ".jpg"
