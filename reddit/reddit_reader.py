@@ -2,6 +2,7 @@
 import time
 
 import reddit_commenter
+from database import firebase_crud
 from reddit import bot_login
 from rss import rss_search
 
@@ -35,6 +36,7 @@ def comment_and_save(comment, comment_body):
         # Taking some time to check if everything went accordly
         time.sleep(10)
         reddit_commenter.save_comment_id_to_file(comment.id)
+        firebase_crud.add_id(comment.id)
         # If everything was successfull, wait for ten minutes
         print "Successfully commented. Taking a break."
         time.sleep(600)
@@ -64,7 +66,8 @@ def start_reading_process():
     user_comments = get_user_comment(bot_login.bot_login(), u"empleadoEstatalBot")
 
     if user_comments:
-        old_comments = reddit_commenter.get_saved_comments()
+        # old_comments = reddit_commenter.get_saved_comments()
+        old_comments = firebase_crud.get_all()
         for comment in user_comments:
             if comment and comment.id not in old_comments:
                 parsed_comment = find_between(comment.body, "[", "]")

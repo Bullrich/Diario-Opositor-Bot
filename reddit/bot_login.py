@@ -24,8 +24,8 @@ def retrieve_login_credentials():
                       os.environ['REDDIT_CLIENT_SECRET']]
     else:
         from configs import credentials
-        login_info = [credentials.username,
-                      credentials.password,
-                      credentials.client_id,
-                      credentials.client_secret]
+        login_info = [credentials.reddit_config.username,
+                      credentials.reddit_config.password,
+                      credentials.reddit_config.client_id,
+                      credentials.reddit_config.client_secret]
     return login_info
