@@ -36,7 +36,9 @@ def comment_and_save(comment, comment_body):
         # Taking some time to check if everything went accordly
         time.sleep(10)
         reddit_commenter.save_comment_id_to_file(comment.id)
-        firebase_crud.add_id(comment.id)
+
+        comment_file = {'comment_id': comment.id, 'comment_url': 'www.reddit.com' + comment.permalink()}
+        firebase_crud.add_id(comment_file)
         # If everything was successfull, wait for ten minutes
         print "Successfully commented. Taking a break."
         time.sleep(600)
@@ -78,16 +80,14 @@ def start_reading_process():
                 if not parsed_comment.endswith(not_allowed_ends):
                     news = rss_search.get_articles(parsed_comment)
                     if news:
-                        print "--- original new: " + parsed_comment
+                        print "\n\n--- original new: " + parsed_comment
                         formatted_comment = format_comment(news)
                         print formatted_comment
                         print '\n'
 
                         comment_and_save(comment, formatted_comment)
-                        # for new in news:
-                        #   print "--- " + new[0] + ": " + new[1]['text'].split('\n', 1)[0]
                     else:
-                        print "--- No news in this platform"
+                        print "\n\n--- No news in this platform\n\n"
         print "Finished a round. Taking a break before starting again."
         time.sleep(300)
         print "Finished the loop. Starting again."
