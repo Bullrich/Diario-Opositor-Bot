@@ -2,34 +2,31 @@ import firebase_login
 
 search_query = 'comments'
 
-
-def add_id(comment_file):
+def get_firebase():
     firebase = firebase_login.get_firebase()
 
     db = firebase_login.get_database(firebase)
     user = firebase_login.get_logged_user(firebase)
+    return [user,db]
 
-    db.child(search_query).child(comment_file['comment_id']).set(comment_file, user['idToken'])
+def add_id(comment_file):
+    firebase = get_firebase()
+
+    firebase[1].child(search_query).child(comment_file['comment_id']).set(comment_file, firebase[0]['idToken'])
 
 
 def get_id(comment_id):
-    firebase = firebase_login.get_firebase()
+    firebase = get_firebase()
 
-    db = firebase_login.get_database(firebase)
-    user = firebase_login.get_logged_user(firebase)
-
-    searched_id = db.child(search_query).child(comment_id).get(user['idToken']).val()
+    searched_id = firebase[1].child(search_query).child(comment_id).get(firebase[0]['idToken']).val()
 
     return searched_id
 
 
 def get_all():
-    firebase = firebase_login.get_firebase()
+    firebase = get_firebase()
 
-    db = firebase_login.get_database(firebase)
-    user = firebase_login.get_logged_user(firebase)
-
-    all_comments = db.child(search_query).get(user['idToken']).val()
+    all_comments = firebase[1].child(search_query).get(firebase[0]['idToken']).val()
 
     all_comments_id = []
 
