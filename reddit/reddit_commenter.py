@@ -21,7 +21,6 @@ def reply_to_comment(comment, comment_body):
     reload(sys)
     sys.setdefaultencoding('utf-8')
 
-    print comment_body
     comment.reply(comment_body)
 
 

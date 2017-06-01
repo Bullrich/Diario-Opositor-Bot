@@ -5,6 +5,7 @@ import reddit_commenter
 from database import firebase_crud
 from reddit import bot_login
 from rss import rss_search
+import os
 
 
 def find_between(s, first, last):
@@ -56,9 +57,18 @@ def format_comment(news):
         noticias_relacionadas += ' - Diario ' + new[0] + ': '
         noticias_relacionadas += '[' + new[1]['text'].split('\n', 1)[0] + ']'
         noticias_relacionadas += '(' + new[1]['link'] + ')\n\n'
-    footer = "---\n\nDiario Opositor Bot, distintas perspectivas de la misma noticia"
-    link_al_source = "\n\n[Codigo fuente](https://github.com/Bullrich/Diario-Opositor-Bot)"
-    return header + noticias_relacionadas + footer + link_al_source
+    return header + noticias_relacionadas + footer()
+
+
+signature = os.environ.get('bot_firma') if os.environ.get('bot_firma') is not None else ""
+
+
+def footer():
+    signature = "Diario Opositor Bot, distintas perspectivas de la misma noticia"
+    link_al_source = "\n\n[Codigo fuente](https://github.com/Bullrich/Diario-Opositor-Bot). " + \
+                     "[/u/empleadoEstatalBot](https://www.reddit.com/user/empleadoEstatalBot) me tiene de hijo pero no es padre"
+
+    return '---\n\n' + signature + link_al_source + '\n\n' + signature
 
 
 not_allowed_ends = ".jpg"
