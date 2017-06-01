@@ -2,12 +2,14 @@ import firebase_login
 
 search_query = 'comments'
 
+
 def get_firebase():
     firebase = firebase_login.get_firebase()
 
     db = firebase_login.get_database(firebase)
     user = firebase_login.get_logged_user(firebase)
-    return [user,db]
+    return [user, db]
+
 
 def add_id(comment_file):
     firebase = get_firebase()

@@ -1,5 +1,6 @@
-from configs import credentials
 import pyrebase
+
+from configs import credentials
 
 
 def get_firebase():

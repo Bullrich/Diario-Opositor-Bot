@@ -3,10 +3,11 @@
 news.py: an rss feed aggregator/filter
 """
 import difflib
-from feedparser import parse
 from operator import or_
 from re import search
 from urllib import urlretrieve
+
+from feedparser import parse
 
 LIM = 3
 

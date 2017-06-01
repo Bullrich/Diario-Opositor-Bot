@@ -3,7 +3,7 @@ clarin_filtrado = ["https://www.clarin.com/rss/politica/",
                    "https://www.clarin.com/rss/sociedad/",
                    "https://www.clarin.com/rss/mundo/",
                    "https://www.clarin.com/rss/policiales/",
-                   "	https://www.clarin.com/rss/ciudades/",
+                   "https://www.clarin.com/rss/ciudades/",
                    "https://www.clarin.com/rss/cultura/",
                    "https://www.clarin.com/rss/deportes/futbol/"]
 

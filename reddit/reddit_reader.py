@@ -1,11 +1,11 @@
 # coding=utf-8
+import os
 import time
 
 import reddit_commenter
 from database import firebase_crud
 from reddit import bot_login
 from rss import rss_search
-import os
 
 
 def find_between(s, first, last):
