@@ -64,11 +64,11 @@ signature = os.environ.get('bot_firma') if os.environ.get('bot_firma') is not No
 
 
 def footer():
-    signature = "Diario Opositor Bot, distintas perspectivas de la misma noticia"
+    bot_signature = "Diario Opositor Bot, distintas perspectivas de la misma noticia"
     link_al_source = "\n\n[Codigo fuente](https://github.com/Bullrich/Diario-Opositor-Bot). " + \
                      "[/u/empleadoEstatalBot](https://www.reddit.com/user/empleadoEstatalBot) me tiene de hijo pero no es padre"
 
-    return '---\n\n' + signature + link_al_source + '\n\n' + signature
+    return '---\n\n' + bot_signature + link_al_source + '\n\n' + signature
 
 
 not_allowed_ends = ".jpg"
