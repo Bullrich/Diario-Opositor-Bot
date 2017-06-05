@@ -25,29 +25,32 @@ def get_user_comment(r, username):
         append_text = find_between(u_comment.body, "[", "]")
         if " " in append_text:
             headers.append(u_comment)
-            # How many comentaries
-            if i > 30:
+            # How many commentaries
+            if i > 40:
                 break
     return reversed(headers)
+
+
+def minutes(amount_of_minutes):
+    return 60 * amount_of_minutes
 
 
 def comment_and_save(comment, comment_body):
     try:
         reddit_commenter.reply_to_comment(comment, comment_body)
-        # Taking some time to check if everything went accordly
+        # Taking some time to check if everything went accordingly
         time.sleep(10)
-        reddit_commenter.save_comment_id_to_file(comment.id)
 
         comment_file = {'comment_id': comment.id, 'comment_url': 'www.reddit.com' + comment.permalink()}
         firebase_crud.add_id(comment_file)
-        # If everything was successfull, wait for ten minutes
+        # If everything was successful, wait for ten minutes
         print "Successfully commented. Taking a break."
-        time.sleep(600)
+        time.sleep(minutes(10))
 
     except Exception, e:
         print e
         # Wait for a minute and try again
-        time.sleep(60)
+        time.sleep(minutes(1))
 
 
 def format_comment(news):
@@ -65,8 +68,7 @@ signature = os.environ.get('bot_firma') if os.environ.get('bot_firma') is not No
 
 def footer():
     bot_signature = "Diario Opositor Bot, distintas perspectivas de la misma noticia"
-    link_al_source = "\n\n[Codigo fuente](https://github.com/Bullrich/Diario-Opositor-Bot). " + \
-                     "[/u/empleadoEstatalBot](https://www.reddit.com/user/empleadoEstatalBot) me tiene de hijo pero no es padre"
+    link_al_source = "\n\n[Codigo fuente](https://github.com/Bullrich/Diario-Opositor-Bot). "
 
     return '---\n\n' + bot_signature + link_al_source + '\n\n' + signature
 
@@ -74,11 +76,10 @@ def footer():
 not_allowed_ends = ".jpg"
 
 
-def start_reading_process():
+def start_reading_process(repeat):
     user_comments = get_user_comment(bot_login.bot_login(), u"empleadoEstatalBot")
 
     if user_comments:
-        # old_comments = reddit_commenter.get_saved_comments()
         old_comments = firebase_crud.get_all()
         for comment in user_comments:
             if comment and comment.id not in old_comments:
@@ -99,6 +100,9 @@ def start_reading_process():
                     else:
                         print "\n\n--- No news in this platform\n\n"
         print "Finished a round. Taking a break before starting again."
-        time.sleep(300)
-        print "Finished the loop. Starting again."
-        start_reading_process()
+        time.sleep(minutes(30))
+        if repeat:
+            print "Finished the loop. Starting again."
+            start_reading_process()
+        else:
+            print "Finished the process"

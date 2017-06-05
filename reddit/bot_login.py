@@ -11,7 +11,7 @@ def bot_login():
                                    password=login_credential[1],
                                    client_id=login_credential[2],
                                    client_secret=login_credential[3],
-                                   user_agent="DogTest on commenting with jokes v.01 ")
+                                   user_agent="Diario Opositor Bot")
     print "Logged in!"
     return r_authentication
 

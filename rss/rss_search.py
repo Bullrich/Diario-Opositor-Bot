@@ -119,7 +119,7 @@ def get_articles(article_text):
 
                 # Get the closest matches from the matches, with a max error of the cutoff value
                 # increase that to be more precise
-                closest_news = difflib.get_close_matches(" ".join(article_key_words), news_header, n=4, cutoff=0.47)
+                closest_news = difflib.get_close_matches(" ".join(article_key_words), news_header, n=4, cutoff=0.46)
 
                 if debug_news:
                     print " -- closest news"

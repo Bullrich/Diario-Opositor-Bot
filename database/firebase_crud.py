@@ -32,7 +32,7 @@ def get_all():
 
     all_comments_id = []
 
-    for cmmt_id in all_comments:
-        all_comments_id.append(cmmt_id)
+    for comment_id in all_comments:
+        all_comments_id.append(comment_id)
 
     return all_comments_id
