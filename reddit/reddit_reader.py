@@ -99,10 +99,11 @@ def start_reading_process(repeat):
                         comment_and_save(comment, formatted_comment)
                     else:
                         print "\n\n--- No news in this platform\n\n"
-        print "Finished a round. Taking a break before starting again."
-        time.sleep(minutes(30))
+
         if repeat:
+            print "Finished a round. Taking a break before starting again."
+            time.sleep(minutes(30))
             print "Finished the loop. Starting again."
-            start_reading_process()
+            start_reading_process(repeat)
         else:
             print "Finished the process"
