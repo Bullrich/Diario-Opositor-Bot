@@ -45,7 +45,7 @@ def comment_and_save(comment, comment_body):
         firebase_crud.add_id(comment_file)
         # If everything was successful, wait for ten minutes
         print "Successfully commented. Taking a break."
-        time.sleep(minutes(10))
+        time.sleep(minutes(5))
 
     except Exception, e:
         print e
