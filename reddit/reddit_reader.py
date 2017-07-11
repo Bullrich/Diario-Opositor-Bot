@@ -1,11 +1,11 @@
 # coding=utf-8
-import os
 import time
 
 import reddit_commenter
 from database import firebase_crud
 from reddit import bot_login
 from rss import rss_search
+from commenter import comment_formatter
 
 
 def find_between(s, first, last):
@@ -21,12 +21,13 @@ def get_user_comment(r, username):
     user = r.redditor(username)
     headers = []
     print "Getting comments from /u/" + user.name
+    limit = 70
     for i, u_comment in enumerate(user.comments.new()):
         append_text = find_between(u_comment.body, "[", "]")
         if " " in append_text:
             headers.append(u_comment)
             # How many commentaries
-            if i > 70:
+            if i > limit:
                 break
     return reversed(headers)
 
@@ -43,7 +44,7 @@ def comment_and_save(comment, comment_body):
 
         comment_file = {'comment_id': comment.id, 'comment_url': 'www.reddit.com' + comment.permalink()}
         firebase_crud.add_id(comment_file)
-        # If everything was successful, wait for ten minutes
+        # If everything was successful, wait before iterating again
         print "Successfully commented. Taking a break."
         time.sleep(minutes(5))
 
@@ -51,29 +52,6 @@ def comment_and_save(comment, comment_body):
         print e
         # Wait for a minute and try again
         time.sleep(minutes(1))
-
-
-def format_comment(news):
-    header = "## Noticias similares de otros diarios:\n\n"
-    noticias_relacionadas = ''
-    for new in news:
-        noticias_relacionadas += ' - Diario ' + new[0] + ': '
-        noticias_relacionadas += '[' + new[1]['text'].split('\n', 1)[0] + ']'
-        noticias_relacionadas += '(' + new[1]['link'] + ')\n\n'
-    return header + noticias_relacionadas + footer()
-
-
-signature = os.environ.get('bot_firma') if os.environ.get('bot_firma') is not None else ""
-
-
-def footer():
-    bot_signature = "Diario Opositor Bot, distintas perspectivas de la misma noticia"
-    link_al_source = "\n\n[Codigo fuente](https://github.com/Bullrich/Diario-Opositor-Bot). "
-
-    return '---\n\n' + bot_signature + link_al_source + '\n\n' + signature
-
-
-not_allowed_ends = ".jpg"
 
 
 def start_reading_process(repeat, username, subreddit):
@@ -85,25 +63,23 @@ def start_reading_process(repeat, username, subreddit):
             if comment and comment.id not in old_comments and comment.subreddit == subreddit:
                 parsed_comment = find_between(comment.body, "[", "]")
 
-                print "Searching for comment: " + parsed_comment
-                print "Comment id: " + comment.id
+                print "\nSearching for comment: " + parsed_comment
 
-                if not parsed_comment.endswith(not_allowed_ends):
-                    news = rss_search.get_articles(parsed_comment)
-                    if news:
-                        print "\n\n--- original new: " + parsed_comment
-                        formatted_comment = format_comment(news)
-                        print formatted_comment
-                        print '\n'
+                news = rss_search.get_articles(parsed_comment)
+                if news:
+                    print "\n\n--- original new: " + parsed_comment
+                    formatted_comment = comment_formatter.format_comment(news)
+                    print formatted_comment
+                    print '\n\n'
 
-                        comment_and_save(comment, formatted_comment)
-                    else:
-                        print "\n\n--- No news in this platform\n\n"
+                    comment_and_save(comment, formatted_comment)
+                else:
+                    print "\n\n--- No news in this platform\n\n"
 
-        if repeat:
-            print "Finished a round. Taking a break before starting again."
-            time.sleep(minutes(30))
-            print "Finished the loop. Starting again."
-            start_reading_process(repeat)
-        else:
-            print "Finished the process"
+    if repeat:
+        print "Finished a round. Taking a break before starting again."
+        time.sleep(minutes(30))
+        print "Finished the loop. Starting again."
+        start_reading_process(repeat)
+    else:
+        print "Finished the process"

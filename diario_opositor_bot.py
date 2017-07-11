@@ -1,10 +1,11 @@
 from reddit import reddit_reader
+from commenter import comment_formatter
 import os
 
 repeat = os.environ.get('bot_repeat') if os.environ.get('bot_repeat') is not None else None
 
 print 'Remember you can set your own signature by typing \"export bot_firma={your signature}\"!'
-print 'Current signature: ' + reddit_reader.signature
+print 'Current signature: ' + comment_formatter.signature
 
 if repeat:
     print 'The bot is set to cycle until interrupted.'
