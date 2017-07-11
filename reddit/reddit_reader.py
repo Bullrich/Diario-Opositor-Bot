@@ -26,7 +26,7 @@ def get_user_comment(r, username):
         if " " in append_text:
             headers.append(u_comment)
             # How many commentaries
-            if i > 40:
+            if i > 70:
                 break
     return reversed(headers)
 
@@ -39,7 +39,7 @@ def comment_and_save(comment, comment_body):
     try:
         reddit_commenter.reply_to_comment(comment, comment_body)
         # Taking some time to check if everything went accordingly
-        time.sleep(10)
+        time.sleep(5)
 
         comment_file = {'comment_id': comment.id, 'comment_url': 'www.reddit.com' + comment.permalink()}
         firebase_crud.add_id(comment_file)
@@ -76,13 +76,13 @@ def footer():
 not_allowed_ends = ".jpg"
 
 
-def start_reading_process(repeat):
-    user_comments = get_user_comment(bot_login.bot_login(), u"empleadoEstatalBot")
+def start_reading_process(repeat, username, subreddit):
+    user_comments = get_user_comment(bot_login.bot_login(), username)
 
     if user_comments:
         old_comments = firebase_crud.get_all()
         for comment in user_comments:
-            if comment and comment.id not in old_comments:
+            if comment and comment.id not in old_comments and comment.subreddit == subreddit:
                 parsed_comment = find_between(comment.body, "[", "]")
 
                 print "Searching for comment: " + parsed_comment

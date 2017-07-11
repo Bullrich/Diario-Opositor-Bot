@@ -1,3 +1,3 @@
-praw==4.5.1
-Pyrebase==3.0.27
+praw
+Pyrebase
 feedparser==5.2.1

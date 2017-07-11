@@ -12,4 +12,4 @@ else:
     print 'The bot won\'t cycle.'
     print 'You can set the bot to cycle itself by typing \"export bot_repeat=True\"'
 
-reddit_reader.start_reading_process(repeat)
+reddit_reader.start_reading_process(repeat, u"empleadoEstatalBot", "argentina")
