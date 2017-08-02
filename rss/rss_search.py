@@ -6,6 +6,7 @@ import difflib
 from operator import or_
 from re import search
 from urllib import urlretrieve
+import etc
 
 from feedparser import parse
 
@@ -41,8 +42,8 @@ def rss_search(urls, keywords):
     entries = sum([raw_data.entries for raw_data in raw_data_list], [])
 
     required_data = [get_text_from_feed_entry(entry) for entry in entries]
-
-    print 'searching {} entries...'.format(len(required_data))
+    if debug_news:
+        print 'searching {} entries...'.format(len(required_data))
     results = filter(
         lambda data: matches_any_word(data['text'], keywords),
         required_data
@@ -52,7 +53,8 @@ def rss_search(urls, keywords):
 
         result_count = len(results)
         short_result = []
-        print '{} result(s) found'.format(result_count)
+        if debug_news:
+            print '{} result(s) found'.format(result_count)
 
         for i, result in enumerate(results):
             if debug_news:
@@ -96,7 +98,11 @@ def get_articles(article_text):
     for key in rss_urls:
 
         try:
-            print "Getting from " + key
+            if debug_news:
+                print "Getting from " + key
+            else:
+                etc.overwrite_statement("Getting from " + key)
+
             # Get rss feed with related urls
             results = rss_search(rss_urls[key], article_key_words)  # Json with two fields, [link] and [text]
             # Create the list that will contain only the test news
@@ -154,4 +160,6 @@ def get_articles(article_text):
             print "Failed with the following exception:"
             print e
 
+    if not debug_news:
+        etc.overwrite_statement('Search done', True)
     return rss_feed

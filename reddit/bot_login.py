@@ -6,7 +6,6 @@ import praw
 def bot_login():
     print "Logging in.."
     login_credential = retrieve_login_credentials()
-    print login_credential
     r_authentication = praw.Reddit(username=login_credential[0],
                                    password=login_credential[1],
                                    client_id=login_credential[2],
