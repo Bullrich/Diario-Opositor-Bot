@@ -1,11 +1,10 @@
 # coding=utf-8
 import time
 
+import behavior
 import reddit_commenter
-from database import firebase_crud
-from reddit import bot_login
-from rss import rss_search
-from commenter import comment_formatter
+from behavior.commenter import comment_formatter
+from behavior.reddit import bot_login
 
 
 def find_between(s, first, last):
@@ -43,7 +42,7 @@ def comment_and_save(comment, comment_body):
         time.sleep(5)
 
         comment_file = {'comment_id': comment.id, 'comment_url': 'www.reddit.com' + comment.permalink()}
-        firebase_crud.add_id(comment_file)
+        behavior.add_comment_id(comment_file)
         # If everything was successful, wait before iterating again
         print "Successfully commented. Taking a break."
         time.sleep(minutes(5))
@@ -58,14 +57,14 @@ def start_reading_process(repeat, username, subreddit):
     user_comments = get_user_comment(bot_login.bot_login(), username)
 
     if user_comments:
-        old_comments = firebase_crud.get_all()
+        old_comments = behavior.get_all_comments()
         for comment in user_comments:
             if comment and comment.id not in old_comments and comment.subreddit == subreddit:
                 parsed_comment = find_between(comment.body, "[", "]")
 
                 print "\nSearching for comment: " + parsed_comment
 
-                news = rss_search.get_articles(parsed_comment)
+                news = behavior.get_articles(parsed_comment)
                 if news:
                     print "\n\n--- original new: " + parsed_comment
                     formatted_comment = comment_formatter.format_comment(news)

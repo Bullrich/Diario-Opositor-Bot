@@ -102,5 +102,8 @@ ENV/
 
 # Custom
 .idea
-configs/credentials.py
-diario-credentials.json
+credentials.yml
+
+# virtualenv
+venv/
+dob/

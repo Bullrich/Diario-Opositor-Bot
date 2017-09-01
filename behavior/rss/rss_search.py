@@ -9,7 +9,10 @@ from urllib import urlretrieve
 
 from feedparser import parse
 
+from behavior import rss
+
 LIM = 3
+verbose = rss.verbose
 
 
 def get_list_from_string(s):
@@ -55,7 +58,7 @@ def rss_search(urls, keywords):
         print '{} result(s) found'.format(result_count)
 
         for i, result in enumerate(results):
-            if debug_news:
+            if verbose:
                 print 'downloading {} of {}...'.format(i + 1, result_count),
                 urlretrieve(result['link'])  # , filename)
                 print 'done'
@@ -68,26 +71,21 @@ def rss_search(urls, keywords):
 
 
 def get_urls():
-    from configs import urls
-    _urls = urls.rss
+    _urls = rss.get_urls()
     return _urls
 
 
 def get_key_words(title):
-    from configs import filteredWords
-    common_words = filteredWords.filtered
+    common_words = rss.get_filtered_words()
     title_words = title.lower().split()
     # keywords = set(title_words).difference(common_words)
     keywords = [item for item in title_words if item not in common_words]
     return keywords
 
 
-debug_news = None
-
-
 # This functions checks, given a news article title, for the most similar news in a couple of rss links.
 # The idea is to find the same story from a different newspaper
-def get_articles(article_text):
+def get_articles(article_text, similarity=0.52):
     rss_feed = []
     rss_urls = get_urls()
     # Get the key words from the article text
@@ -107,44 +105,45 @@ def get_articles(article_text):
                     # Add the [text] value to a new list
                     text_news.append(news['text'])
                 # finds inside the list related news to one that is closest to the reference one
-                if debug_news:
+                if verbose:
                     print "text_news length: " + str(len(text_news))
 
                 # Declare a list to contain only the headers
                 news_header = []
                 for news in text_news:
                     news_header.append(news.split('\n', 1)[0])
-                if debug_news:
+                if verbose:
                     print news_header
 
                 # Get the closest matches from the matches, with a max error of the cutoff value
                 # increase that to be more precise
-                closest_news = difflib.get_close_matches(" ".join(article_key_words), news_header, n=4, cutoff=0.52)
+                closest_news = difflib.get_close_matches(" ".join(article_key_words), news_header, n=4,
+                                                         cutoff=similarity)
 
-                if debug_news:
+                if verbose:
                     print " -- closest news"
                     print closest_news
 
                 from difflib import SequenceMatcher
                 if closest_news:
                     compare_news = closest_news[0].split('\n', 1)[0]
-                    if debug_news:
+                    if verbose:
                         print compare_news
 
                     # We check that the title isn't exactly the same to filter out the same news
                     if SequenceMatcher(a=compare_news, b=article_text).ratio() < 0.9:
 
-                        if debug_news:
+                        if verbose:
                             print "Sequence error: "
                             print SequenceMatcher(a=compare_news, b=article_text).ratio()
 
-                        if debug_news:
+                        if verbose:
                             print " -- text news"
                             print text_news
 
                         # Find what is the index of the list
                         list_index = news_header.index(closest_news[0])
-                        if debug_news:
+                        if verbose:
                             print text_news[list_index].split('\n', 1)[0]
                             print list_index
                         # Return that element (the most similar one)
