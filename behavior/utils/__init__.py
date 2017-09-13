@@ -1,6 +1,3 @@
-import sys
-
-
 def progress_bar(value, end_value, bar_length=20):
     import sys
     percent = float(value) / end_value

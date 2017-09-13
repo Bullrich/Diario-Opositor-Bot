@@ -1,6 +1,7 @@
 import firebase_login
 
 search_query = 'comments'
+from behavior.database import verbose
 
 
 def get_firebase():
@@ -34,5 +35,6 @@ def get_all():
 
     for comment_id in all_comments:
         all_comments_id.append(comment_id)
-
+    if verbose:
+        print all_comments_id
     return all_comments_id
