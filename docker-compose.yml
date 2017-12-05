@@ -1,0 +1,8 @@
+version: '2'
+services:
+  doby:
+    image: jbullrich/diario-opositor-bot
+    volumes:
+      - ./credentials.yml:/etc/dob/credentials.yml:ro
+    environment:
+      - PYTHONUNBUFFERED=0
