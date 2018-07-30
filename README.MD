@@ -2,6 +2,8 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/0765428e32cf4cb29e046268e824cc78)](https://www.codacy.com/app/javierbullrich/Diario-Opositor-Bot?utm_source=github.com&utm_medium=referral&utm_content=Bullrich/Diario-Opositor-Bot&utm_campaign=badger)
 
+![DOB logo](dob-logo.png)
+
 Diario Opositor Bot es un bot de Reddit que busca los comentarios de otro bot que registra noticias y responde leyendo el titular de la noticia con noticias similares de otras fuentes de RSS.
 
 Las fuentes se encuentran en configs/urls.py.

@@ -106,4 +106,5 @@ credentials.yml
 
 # virtualenv
 venv/
+.venv/
 dob/

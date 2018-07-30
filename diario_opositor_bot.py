@@ -1,35 +1,60 @@
 #! /usr/bin/python
 
 import sys
+import logging
+from behavior import Behavior
+import argparse
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
+running = False
 
-import behavior
 
-repeat = None
+class DiarioOpositorBot:
+    def __init__(self, log_level=logging.INFO, signature=''):
+        print('Bot iniciado')
+        args = self.get_args()
+        if args['verbose']:
+            log_level = logging.DEBUG
+        if args['signature']:
+            signature = args['signature']
 
-print sys.argv[0]
-for arg in sys.argv:
-    if arg == sys.argv[0]:
-        pass
-    elif arg == '-v':
-        print 'verbose mode'
-        behavior.set_verbose()
-    elif arg == '--signature' or arg == '-s':
-        signature = raw_input("Please write the bot's signature:\n")
-        behavior.set_signature(signature)
-        print "Your signature is: \"" + signature + "\""
-    elif arg == '--repeat' or arg == "-r":
-        repeat = True
-    else:
-        print "Command not found"
-        exit()
+        self.logger = self.create_logger(log_level)
+        if signature != '':
+            self.logger.info('Signature is %s', signature)
+        self.behavior = Behavior.Behavior(signature, 0)
 
-if repeat:
-    print 'The bot is set to cycle until interrupted.'
-else:
-    print 'The bot won\'t cycle.'
-    print 'You can set the bot to cycle itself by passing the parameter --repeat'
+    def get_args(self):
+        parser = argparse.ArgumentParser(description='Process the commands.')
+        parser.add_argument('-v', '--verbose', const=True, nargs='?', help='Be verbose with the logs')
+        parser.add_argument('-s', '--signature', help='Define a signature for the bot')
+        parser.add_argument('-r', '--repeat', const=True, nargs='?', help='Repeat the loops once it finish')
+        return vars(parser.parse_args())
 
-behavior.start_reading_process(repeat, u"empleadoEstatalBot", "argentina")
+    def create_logger(self, debug_level=logging.DEBUG):
+        lg = logging.getLogger()
+        lg_level = debug_level
+        lg.setLevel(lg_level)
+
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(lg_level)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        lg.addHandler(ch)
+        return lg
+
+    def start(self):
+        global running
+        running = True
+        self.behavior.read_and_respond()
+        print('Finished a round!')
+        running = False
+
+
+if __name__ == '__main__':
+    print('Running bot!')
+    dob = DiarioOpositorBot()
+    dob.start()
+
+
+def get_status():
+    global running
+    return running
