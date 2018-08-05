@@ -4,6 +4,7 @@ import sys
 import logging
 from behavior import Behavior
 import argparse
+import redis
 
 running = False
 
@@ -47,6 +48,24 @@ class DiarioOpositorBot:
         self.behavior.read_and_respond()
         print('Finished a round!')
         running = False
+
+    def start_server(self):
+        from time import sleep
+        r = redis.StrictRedis(host="0.0.0.0", port=6379, db=0)
+        rsub = r.pubsub()
+        rsub.subscribe("dob-start")
+        print('Suscribed!')
+        while True:
+            for m in rsub.listen():
+                print(m)
+                if m['type'] == "message":
+                    if m['data'] == b'start':
+                        print('Starting bot!')
+                        r.set('dob-running', True)
+                        # self.start()
+                        sleep(15)
+                        r.delete('dob-running')
+            sleep(0.5)
 
 
 if __name__ == '__main__':

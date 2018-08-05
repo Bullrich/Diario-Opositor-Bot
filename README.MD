@@ -11,12 +11,17 @@ Las fuentes se encuentran en configs/urls.py.
 ---
 
 Si queres tener tu propio bot corriendo simplemente completa tus credenciales en config/credentials.py y ejecuta
-```python
-python diario_opositor_bot.py
-```
+
+`python diario_opositor_bot.py`
 
 ---
 
 Hay un par de cosas hardcodeadas pero en general me siento orgulloso de como corre.
 
 Es un proyecto que hice para aprender python, creo que aprendi bastante en el medio.
+
+## Docker
+
+Para correrlo con docker ejecutar
+
+`docker run -d -p 7999:7999 diario-opositor-bot`

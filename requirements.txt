@@ -3,3 +3,4 @@ Pyrebase
 feedparser==5.2.1
 pyyaml
 bottle
+redis
