@@ -1,0 +1,60 @@
+.title {
+    padding-top: 40px;
+    margin-bottom: 40px;
+    font-size: 50px;
+    font-family: HelvetiaBold, "Arial", sans-serif;
+    line-height: 1;
+    letter-spacing: -1.5px;
+}
+
+.about {
+    font-family: HelvetiaMedium, "Arial", sans-serif;
+    font-size: 18px;
+    padding-top: 4px;
+}
+
+.text {
+    color: #707070;
+    font-size: 18px;
+    line-height: 30px;
+}
+
+.container {
+    /* padding: 71.5px 243.1px 71.5px; */
+    margin-left: 10%;
+    margin-right: auto;
+    min-width: 30%;
+    max-width: 70%;
+}
+
+a.link:hover {
+    color: #24C9BA;
+    transform: scale(0.98);
+}
+
+a:hover {
+    color: inherit;
+}
+
+a.link {
+    margin-top: 30px;
+    display: block;
+    float: right;
+    transition: 0.3s;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+    background-color: transparent;
+    -webkit-text-decoration-skip: objects;
+}
