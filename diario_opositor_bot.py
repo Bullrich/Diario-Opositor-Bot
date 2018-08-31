@@ -1,17 +1,16 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 
-import sys
-import logging
-from behavior import Behavior
 import argparse
+import logging
+import sys
+
 import redis
 
-running = False
+from behavior import Behavior
 
 
 class DiarioOpositorBot:
-    def __init__(self, log_level=logging.INFO, signature=''):
-        print('Bot iniciado')
+    def __init__(self, log_level=logging.DEBUG, signature=''):
         args = self.get_args()
         if args['verbose']:
             log_level = logging.DEBUG
@@ -21,7 +20,7 @@ class DiarioOpositorBot:
         self.logger = self.create_logger(log_level)
         if signature != '':
             self.logger.info('Signature is %s', signature)
-        self.behavior = Behavior.Behavior(signature, 0)
+        self.behavior = Behavior.Behavior(signature, 1)
 
     def get_args(self):
         parser = argparse.ArgumentParser(description='Process the commands.')
@@ -43,28 +42,27 @@ class DiarioOpositorBot:
         return lg
 
     def start(self):
-        global running
-        running = True
+        from pyfiglet import Figlet
+        f = Figlet(font='contessa')
+        print(f.renderText('Diario Opositor Bot'))
+
+        self.logger.info('Initializing Diario Opositor Bot!')
         self.behavior.read_and_respond()
         print('Finished a round!')
-        running = False
 
     def start_server(self):
         from time import sleep
         r = redis.StrictRedis(host="0.0.0.0", port=6379, db=0)
         rsub = r.pubsub()
         rsub.subscribe("dob-start")
-        print('Suscribed!')
         while True:
             for m in rsub.listen():
                 print(m)
                 if m['type'] == "message":
                     if m['data'] == b'start':
                         print('Starting bot!')
-                        r.set('dob-running', True)
-                        # self.start()
+                        self.start()
                         sleep(15)
-                        r.delete('dob-running')
             sleep(0.5)
 
 
@@ -72,8 +70,3 @@ if __name__ == '__main__':
     print('Running bot!')
     dob = DiarioOpositorBot()
     dob.start()
-
-
-def get_status():
-    global running
-    return running

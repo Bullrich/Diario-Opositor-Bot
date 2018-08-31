@@ -1,5 +1,6 @@
-import pyrebase
 import logging
+
+import pyrebase
 
 
 class FirebaseController:
@@ -19,13 +20,15 @@ class FirebaseController:
         self.search_query = 'comments'
 
     def add_comment(self, comment_file):
-        # self.database.child(self.search_query). \
-        #     child(comment_file['comment_id']). \
-        #     set(comment_file, self.user['idToken'])
+        self.database.child(self.search_query). \
+            child(comment_file['comment_id']). \
+            set(comment_file, self.user['idToken'])
+        self.logger.info("'Added' to the database")
+
+    def fake_db_to_txt_file(self, comment_file):
         f = open("comments.txt", "a+")
         f.write(comment_file['comment_url'] + '\n')
         f.close()
-        self.logger.info("'Added' to the database")
 
     def get_id(self, comment_id):
         searched_id = self.database.child(self.search_query).child(comment_id).get(self.user['idToken']).val()

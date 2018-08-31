@@ -18,8 +18,7 @@ class RedditController:
         return r
 
     def reply_to_comment(self, comment, reply_body):
-        # comment.reply(reply_body)
-        print(reply_body)
+        comment.reply(reply_body)
         self.logger.info("'Commented'")
 
     def get_user_comments(self, username, comments_to_fetch=100):

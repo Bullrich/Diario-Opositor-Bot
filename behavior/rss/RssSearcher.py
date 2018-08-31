@@ -3,21 +3,23 @@
 news.py: an rss feed aggregator/filter
 """
 import difflib
+from functools import reduce
 from operator import or_
 from re import search
-from urllib.request import urlretrieve
-from functools import reduce
-import requests
 
+import requests
 from feedparser import parse
+
+from behavior.StatusReporter import Status
 
 
 class RssSearcher:
-    def __init__(self, urls, filtered_words):
+    def __init__(self, urls, filtered_words, status_reporter):
         import logging
         self.logger = logging.getLogger(__name__)
         self.urls = urls
         self.filtered_words = filtered_words
+        self.status = status_reporter
         self.raw_data = {}
 
     def get_list_from_string(self, s):
@@ -51,6 +53,7 @@ class RssSearcher:
 
     def cached_raw_data_list(self, site, url):
         if site not in self.raw_data:
+            self.status.update_status(Status.GETTING_ARTICLES)
             print(site + ' / ' + str(url) + ' is not in raw data cache!')
             self.raw_data[site] = self.workaround_parse(url)
         return self.raw_data[site]
