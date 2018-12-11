@@ -1,15 +1,18 @@
-version: '2'
+version: '2.1'
 services:
   doby:
-#    image: dob
+    #    image: dob
     build: .
     ports:
-      - 7999:7999
+    - 7999:7999
     volumes:
-      - ./credentials.yml:/etc/dob/credentials.yml:ro
+    - ./credentials.yml:/etc/dob/credentials.yml:ro
     environment:
-      - PYTHONUNBUFFERED=0
+    - PYTHONUNBUFFERED=0
+    - redis=redis
     depends_on:
-      - redis
+    - redis
+    links:
+    - redis:redis
   redis:
     image: redis

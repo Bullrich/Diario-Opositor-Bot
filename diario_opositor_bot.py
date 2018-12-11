@@ -10,7 +10,7 @@ from behavior import Behavior
 
 
 class DiarioOpositorBot:
-    def __init__(self, log_level=logging.DEBUG, signature=''):
+    def __init__(self, log_level=logging.DEBUG, signature='', redis_url='0.0.0.0'):
         args = self.get_args()
         if args['verbose']:
             log_level = logging.DEBUG
@@ -20,7 +20,8 @@ class DiarioOpositorBot:
         self.logger = self.create_logger(log_level)
         if signature != '':
             self.logger.info('Signature is %s', signature)
-        self.behavior = Behavior.Behavior(signature, 1)
+        self.redis_url = redis_url
+        self.behavior = Behavior.Behavior(signature, 1, redis_url=self.redis_url)
 
     def get_args(self):
         parser = argparse.ArgumentParser(description='Process the commands.')
@@ -52,7 +53,7 @@ class DiarioOpositorBot:
 
     def start_server(self):
         from time import sleep
-        r = redis.StrictRedis(host="0.0.0.0", port=6379, db=0)
+        r = redis.StrictRedis(host=self.redis_url, port=6379, db=0)
         rsub = r.pubsub()
         rsub.subscribe("dob-start")
         while True:
@@ -68,5 +69,5 @@ class DiarioOpositorBot:
 
 if __name__ == '__main__':
     print('Running bot!')
-    dob = DiarioOpositorBot()
+    dob = DiarioOpositorBot(log_level=logging.INFO)
     dob.start()

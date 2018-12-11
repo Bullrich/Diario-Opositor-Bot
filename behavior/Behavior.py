@@ -10,14 +10,14 @@ import logging
 
 
 class Behavior:
-    def __init__(self, signature='', pause=1):
+    def __init__(self, signature='', pause=1, redis_url='0.0.0.0'):
         self.logger = logging.getLogger(__name__)
         self.logger.info("Initializing behavior")
         credentials = self.get_yml_file('credentials.yml')
         self.reddit = RedditController.RedditController(credentials['reddit'])
         self.database = FirebaseController.FirebaseController(credentials['firebase'])
         self.commenter = Commenter.Commenter(signature)
-        self.status = StatusReporter.StatusReporter()
+        self.status = StatusReporter.StatusReporter(redis_url)
         self.rss = self.create_rss_searcher()
         self.pause = pause
 
@@ -42,7 +42,7 @@ class Behavior:
         self.status.update_status(Status.OFF)
 
     def fetch_and_format_comments(self, username, subreddits):
-        comments_to_fetch = 30
+        comments_to_fetch = 180
         user_comments = self.reddit.get_user_comments(username, comments_to_fetch)
         self.status.update_status(Status.FETCHING_COMMENTS_FROM_USER, {'comments': comments_to_fetch})
 
@@ -70,7 +70,7 @@ class Behavior:
         self.status.update_status(Status.FINDING_RELATED_NEWS, comment.id)
         parsed_comment = utils.find_between(comment.body, '[', ']')
         self.logger.info('------ Searching for comment: %s', parsed_comment)
-        news = self.rss.get_articles(parsed_comment, 0.8)
+        news = self.rss.get_articles(parsed_comment, similarity=0.6)
         if news:
             formatted_comment = self.commenter.format_comment(news)
             self.logger.info(formatted_comment)

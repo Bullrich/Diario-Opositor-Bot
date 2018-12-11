@@ -6,12 +6,17 @@ from json import loads
 
 import redis
 from bottle import route, run, response
+from os import environ
 
 from behavior import StatusReporter
 from diario_opositor_bot import DiarioOpositorBot
 
-dob_thread = None
-r = redis.StrictRedis(host='0.0.0.0', port=6379, db=0)
+redis_url = '0.0.0.0'
+redis_env = environ['redis']
+if redis_env:
+    redis_url = redis_env
+
+r = redis.StrictRedis(host=redis_url, port=6379, db=0)
 r.delete('dob-status')
 
 
@@ -54,7 +59,7 @@ def start_bot():
     if r.get('dob-status') is None:
         import logging
         import time
-        dob = DiarioOpositorBot(log_level=logging.INFO)
+        dob = DiarioOpositorBot(log_level=logging.INFO, redis_url=redis_url)
         doby_thread = threading.Thread(target=dob.start_server)
         doby_thread.start()
         time.sleep(0.8)

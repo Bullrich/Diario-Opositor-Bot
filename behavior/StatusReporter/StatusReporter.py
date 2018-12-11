@@ -7,9 +7,9 @@ from . import Status
 
 
 class StatusReporter:
-    def __init__(self):
+    def __init__(self, redis_url='0.0.0.0'):
         self.logger = logging.getLogger(__name__)
-        self.r = redis.StrictRedis(host='0.0.0.0', port=6379, db=0)
+        self.r = redis.StrictRedis(host=redis_url, port=6379, db=0)
         self.redis_available = self.is_redis_available()
         self.status = {}
         self.update_status(Status.INITIALIZING)
