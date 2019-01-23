@@ -1,12 +1,13 @@
 #!/usr/bin/python3
 
+import os
 import threading
 from datetime import datetime
 from json import loads
+from os import environ
 
 import redis
 from bottle import route, run, response
-from os import environ
 
 from behavior import StatusReporter
 from diario_opositor_bot import DiarioOpositorBot
@@ -68,4 +69,9 @@ def start_bot():
 
 print("Starting Diario-Opositor-Bot Server at " + str(datetime.now()))
 
-run(host='0.0.0.0', port=7999)
+if 'PORT' in os.environ:
+    PORT = os.environ['PORT']
+else:
+    PORT = 5000
+
+run(host='0.0.0.0', port=PORT)

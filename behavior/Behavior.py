@@ -1,19 +1,22 @@
-import yaml
-from .reddit import RedditController
-from .database import FirebaseController
-from .commenter import Commenter
-from .rss import RssSearcher, generate_urls, encode_list
-from .StatusReporter import StatusReporter, Status
-from . import utils
-import time
 import logging
+import time
+
+import yaml
+
+from behavior.config import fetch_credentials
+from . import utils
+from .StatusReporter import StatusReporter, Status
+from .commenter import Commenter
+from .database import FirebaseController
+from .reddit import RedditController
+from .rss import RssSearcher, generate_urls, encode_list
 
 
 class Behavior:
     def __init__(self, signature='', pause=1, redis_url='0.0.0.0'):
         self.logger = logging.getLogger(__name__)
         self.logger.info("Initializing behavior")
-        credentials = self.get_yml_file('credentials.yml')
+        credentials = fetch_credentials()
         self.reddit = RedditController.RedditController(credentials['reddit'])
         self.database = FirebaseController.FirebaseController(credentials['firebase'])
         self.commenter = Commenter.Commenter(signature)
@@ -38,8 +41,19 @@ class Behavior:
     def read_and_respond(self):
         self.status.update_status(Status.INITIALIZING)
         comments_to_answer = self.fetch_and_format_comments(u'empleadoEstatalBot', ['argentina', 'RepublicaArgentina'])
-        self.comment_replies(comments_to_answer)
+        self.manage_commenting(comments_to_answer)
         self.status.update_status(Status.OFF)
+
+    def manage_commenting(self, comments):
+        for comment in comments:
+            self.status.update_status(Status.COMMENTING, comment.to_dict())
+            response = self.reddit.reply_to_comment(comment)
+            comment.reply_link = response.permalink
+            self.status.update_status(Status.UPDATING_DB, comment.to_dict())
+            self.database.add_comment(comment)
+            self.logger.info('Successfully commented! Taking a break for %i minutes', self.pause)
+            self.status.update_status(Status.RESTING)
+            time.sleep(utils.minutes(self.pause))
 
     def fetch_and_format_comments(self, username, subreddits):
         comments_to_fetch = 180
@@ -47,34 +61,45 @@ class Behavior:
         self.status.update_status(Status.FETCHING_COMMENTS_FROM_USER, {'comments': comments_to_fetch})
 
         if user_comments:
-            old_comments = self.database.get_all_comments()
             self.status.update_status(Status.FETCHING_COMMENTS_FROM_DB)
-            comments = list(filter(lambda c: c.id not in old_comments and c.subreddit in subreddits, user_comments))
-            parsed_comments = list(map(self.get_related_news, comments))
+            old_comments = self.database.get_all_comments()
+            if old_comments:
+                comments = list(filter(lambda c: c.id not in old_comments and c.subreddit in subreddits, user_comments))
+            else:
+                comments = user_comments
+            parsed_comments = list(map(self.generate_reply_object, comments))
             return list(filter(None, parsed_comments))
         return []
 
-    def comment_replies(self, parsed_comments):
-        for comment in parsed_comments:
-            comment_file = {'comment_id': comment['comment'].id,
-                            'comment_url': 'www.reddit.com' + comment['comment'].permalink}
-            self.reddit.reply_to_comment(comment['comment'], comment['reply'])
-            self.status.update_status(Status.COMMENTING, comment['comment'].id)
-            self.database.add_comment(comment_file)
-            self.status.update_status(Status.UPDATING_DB, comment['comment'].id)
-            self.logger.info('Successfully commented!. Taking a break for %i minutes', self.pause)
-            self.status.update_status(Status.RESTING)
-            time.sleep(utils.minutes(self.pause))
-
     def get_related_news(self, comment):
-        self.status.update_status(Status.FINDING_RELATED_NEWS, comment.id)
-        parsed_comment = utils.find_between(comment.body, '[', ']')
-        self.logger.info('------ Searching for comment: %s', parsed_comment)
-        news = self.rss.get_articles(parsed_comment, similarity=0.6)
+        self.logger.info('------ Searching for comment: %s', comment)
+        news = self.rss.get_articles(comment, similarity=0.6)
         if news:
-            formatted_comment = self.commenter.format_comment(news)
-            self.logger.info(formatted_comment)
-            return {'comment': comment, 'reply': formatted_comment}
+            return news
         else:
             self.logger.warning('No related news')
             return []
+
+    def generate_reply_object(self, comment):
+        self.status.update_status(Status.FINDING_RELATED_NEWS, comment.id)
+        comment_text = utils.find_between(comment.body, '[', ']')
+        related_news = self.get_related_news(comment_text)
+        if related_news:
+            reply = self.commenter.format_comment(related_news)
+            self.logger.info(reply)
+            return self.Comment(comment, reply)
+        else:
+            return None
+
+    class Comment:
+        def __init__(self, comment, reply):
+            self.comment = comment
+            self.message = utils.find_between(comment.body, '[', ']')
+            self.id = comment.id
+            self.link = 'reddit.com' + comment.permalink
+            self.reply = reply
+            self.reply_link = ''
+
+        def to_dict(self):
+            return {'id': self.id, 'message': self.message, 'link': self.link,
+                    'reply_link': 'reddit.com' + self.reply_link}

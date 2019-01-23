@@ -10,7 +10,7 @@ Las fuentes se encuentran en configs/urls.py.
 
 ---
 
-Si queres tener tu propio bot corriendo simplemente completa tus credenciales en config/credentials.py y ejecuta
+Si queres tener tu propio bot corriendo simplemente completa tus credenciales en behavior/config/dev.py y ejecuta
 
 `python diario_opositor_bot.py`
 

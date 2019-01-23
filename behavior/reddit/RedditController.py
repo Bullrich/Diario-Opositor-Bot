@@ -1,5 +1,6 @@
-import praw
 import logging
+
+import praw
 
 
 class RedditController:
@@ -17,9 +18,8 @@ class RedditController:
                         user_agent="Diario Opositor Bot")
         return r
 
-    def reply_to_comment(self, comment, reply_body):
-        comment.reply(reply_body)
-        self.logger.info("'Commented'")
+    def reply_to_comment(self, comment):
+        return comment.comment.reply(comment.reply)
 
     def get_user_comments(self, username, comments_to_fetch=100):
         user = self.r.redditor(username)
