@@ -81,8 +81,8 @@ class Behavior:
             return []
 
     def generate_reply_object(self, comment):
-        self.status.update_status(Status.FINDING_RELATED_NEWS, comment.id)
         comment_text = utils.find_between(comment.body, '[', ']')
+        self.status.update_status(Status.FINDING_RELATED_NEWS, comment_text)
         related_news = self.get_related_news(comment_text)
         if related_news:
             reply = self.commenter.format_comment(related_news)

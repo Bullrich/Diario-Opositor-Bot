@@ -2,6 +2,7 @@ import json
 import logging
 
 import pyrebase
+import time
 
 
 class FirebaseController:
@@ -21,7 +22,8 @@ class FirebaseController:
         self.search_query = 'v1'
 
     def add_comment(self, comment_file):
-        self.database.child(self.search_query).child(comment_file.id).set(comment_file.to_dict(), self.user['idToken'])
+        self.database.child(self.search_query).child('%s-%s' % (int(time.time()), comment_file.id)).set(
+            comment_file.to_dict(), self.user['idToken'])
         self.logger.info("%s to the database", json.dumps(comment_file.to_dict()))
 
     def fake_db_to_txt_file(self, comment_file):
@@ -33,15 +35,20 @@ class FirebaseController:
         searched_id = self.database.child(self.search_query).child(comment_id).get(self.user['idToken']).val()
         return searched_id
 
-    def get_all_comments(self):
+    def get_raw_comments(self):
         self.logger.info('Getting old comments from DB')
         all_comments = self.database.child(self.search_query).get(self.user['idToken']).val()
+        return all_comments
 
+    def get_all_comments(self):
+        all_comments = self.get_raw_comments()
+
+        self.logger.info('Parsing old comments')
         if all_comments:
             all_comments_id = []
 
             for comment_id in all_comments:
-                all_comments_id.append(comment_id)
+                all_comments_id.append(comment_id.split('-')[-1])
 
             self.logger.debug(all_comments_id)
             return all_comments_id
