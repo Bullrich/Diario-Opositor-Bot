@@ -24,6 +24,9 @@ class Behavior:
         self.rss = self.create_rss_searcher()
         self.pause = pause
 
+    def get_all_comments(self):
+        return self.database.get_all_comments()
+
     def get_yml_file(self, yml_file_name):
         yml_file = open(yml_file_name)
         yml_data = yaml.safe_load(yml_file)

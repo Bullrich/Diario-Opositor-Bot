@@ -1,24 +1,24 @@
 #!/usr/bin/python3
 
-import os
-import threading
 from datetime import datetime
 from json import loads
 from os import environ
+from threading import Thread
 
-import redis
 from bottle import route, run, response
+from redis import StrictRedis
 
+import server
 from behavior import StatusReporter
 from diario_opositor_bot import DiarioOpositorBot
 
 redis_url = '0.0.0.0'
-redis_env = environ['redis']
-if redis_env:
-    redis_url = redis_env
+if 'redis' in environ:
+    redis_url = environ['redis']
 
-r = redis.StrictRedis(host=redis_url, port=6379, db=0)
+r = StrictRedis(host=redis_url, port=6379, db=0)
 r.delete('dob-status')
+
 
 
 @route('/run')
@@ -33,7 +33,8 @@ def run_bot():
 
 @route('/stop')
 def stop():
-    return 'Not implemented yet'
+    r.publish("dob-start", "end")
+    return 'Called death command'
 
 
 @route('/status')
@@ -45,6 +46,10 @@ def status():
         return decoded_status
     else:
         return "No data"
+
+@route('/comments')
+def get_comments():
+    return server.fetch_comments()
 
 
 def bot_running():
@@ -61,7 +66,7 @@ def start_bot():
         import logging
         import time
         dob = DiarioOpositorBot(log_level=logging.INFO, redis_url=redis_url)
-        doby_thread = threading.Thread(target=dob.start_server)
+        doby_thread = Thread(target=dob.start_server)
         doby_thread.start()
         time.sleep(0.8)
     r.publish("dob-start", "start")
@@ -69,8 +74,8 @@ def start_bot():
 
 print("Starting Diario-Opositor-Bot Server at " + str(datetime.now()))
 
-if 'PORT' in os.environ:
-    PORT = os.environ['PORT']
+if 'PORT' in environ:
+    PORT = environ['PORT']
 else:
     PORT = 5000
 

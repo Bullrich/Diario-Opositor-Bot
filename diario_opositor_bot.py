@@ -30,7 +30,8 @@ class DiarioOpositorBot:
         parser.add_argument('-r', '--repeat', const=True, nargs='?', help='Repeat the loops once it finish')
         return vars(parser.parse_args())
 
-    def create_logger(self, debug_level=logging.DEBUG):
+    @staticmethod
+    def create_logger(debug_level=logging.DEBUG):
         lg = logging.getLogger()
         lg_level = debug_level
         lg.setLevel(lg_level)
@@ -56,7 +57,8 @@ class DiarioOpositorBot:
         r = redis.StrictRedis(host=self.redis_url, port=6379, db=0)
         rsub = r.pubsub()
         rsub.subscribe("dob-start")
-        while True:
+        loop = True
+        while loop:
             for m in rsub.listen():
                 print(m)
                 if m['type'] == "message":
@@ -64,7 +66,12 @@ class DiarioOpositorBot:
                         print('Starting bot!')
                         self.start()
                         sleep(15)
+                    if m['data'] == b'end':
+                        self.behavior.status.clear_status()
+                        loop = False
             sleep(0.5)
+        self.logger.info('Killing thread')
+        sys.exit()
 
 
 if __name__ == '__main__':

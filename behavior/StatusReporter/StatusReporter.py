@@ -34,3 +34,7 @@ class StatusReporter:
                 redis.exceptions.BusyLoadingError):
             return False
         return True
+
+    def clear_status(self):
+        if self.redis_available:
+            self.r.delete('dob-status')

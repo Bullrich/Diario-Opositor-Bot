@@ -18,7 +18,8 @@ class RedditController:
                         user_agent="Diario Opositor Bot")
         return r
 
-    def reply_to_comment(self, comment):
+    @staticmethod
+    def reply_to_comment(comment):
         return comment.comment.reply(comment.reply)
 
     def get_user_comments(self, username, comments_to_fetch=100):

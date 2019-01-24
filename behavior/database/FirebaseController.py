@@ -5,6 +5,12 @@ import pyrebase
 import time
 
 
+def fake_db_to_txt_file(comment_file):
+    f = open("comments.txt", "a+")
+    f.write(comment_file['comment_url'] + '\n')
+    f.close()
+
+
 class FirebaseController:
     def __init__(self, credentials):
         self.logger = logging.getLogger(__name__)
@@ -25,11 +31,6 @@ class FirebaseController:
         self.database.child(self.search_query).child('%s-%s' % (int(time.time()), comment_file.id)).set(
             comment_file.to_dict(), self.user['idToken'])
         self.logger.info("%s to the database", json.dumps(comment_file.to_dict()))
-
-    def fake_db_to_txt_file(self, comment_file):
-        f = open("comments.txt", "a+")
-        f.write(comment_file['comment_url'] + '\n')
-        f.close()
 
     def get_id(self, comment_id):
         searched_id = self.database.child(self.search_query).child(comment_id).get(self.user['idToken']).val()
