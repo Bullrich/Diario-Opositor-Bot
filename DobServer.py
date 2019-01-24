@@ -9,7 +9,7 @@ from bottle import route, run, response
 from redis import StrictRedis
 
 import server
-from behavior import StatusReporter
+from behaviour import StatusReporter
 from diario_opositor_bot import DiarioOpositorBot
 
 redis_url = '0.0.0.0'

@@ -3,7 +3,7 @@ import time
 
 import yaml
 
-from behavior.config import fetch_credentials
+from behaviour.config import fetch_credentials
 from . import utils
 from .StatusReporter import StatusReporter, Status
 from .commenter import Commenter
@@ -15,7 +15,7 @@ from .rss import RssSearcher, generate_urls, encode_list
 class Behavior:
     def __init__(self, signature='', pause=1, redis_url='0.0.0.0'):
         self.logger = logging.getLogger(__name__)
-        self.logger.info("Initializing behavior")
+        self.logger.info("Initializing behaviour")
         credentials = fetch_credentials()
         self.reddit = RedditController.RedditController(credentials['reddit'])
         self.database = FirebaseController.FirebaseController(credentials['firebase'])

@@ -1,6 +1,6 @@
 import time
-from behavior.database import FirebaseController
-from behavior.config import fetch_credentials
+from behaviour.database import FirebaseController
+from behaviour.config import fetch_credentials
 
 database = FirebaseController.FirebaseController(fetch_credentials()['firebase'])
 all_comments = {}

@@ -10,7 +10,7 @@ from re import search
 import requests
 from feedparser import parse
 
-from behavior.StatusReporter import Status
+from behaviour.StatusReporter import Status
 
 
 class RssSearcher:

@@ -103,7 +103,7 @@ ENV/
 # Custom
 .idea
 credentials.yml
-behavior/config/dev.py
+behaviour/config/dev.py
 comments.txt
 
 # virtualenv

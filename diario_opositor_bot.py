@@ -6,7 +6,7 @@ import sys
 
 import redis
 
-from behavior import Behavior
+from behaviour import Behaviour
 
 
 class DiarioOpositorBot:
@@ -21,7 +21,7 @@ class DiarioOpositorBot:
         if signature != '':
             self.logger.info('Signature is %s', signature)
         self.redis_url = redis_url
-        self.behavior = Behavior.Behavior(signature, 1, redis_url=self.redis_url)
+        self.behavior = Behaviour.Behavior(signature, 1, redis_url=self.redis_url)
 
     def get_args(self):
         parser = argparse.ArgumentParser(description='Process the commands.')
