@@ -1,40 +1,41 @@
 import logging
-from json import dumps
-
-import redis
 
 from . import Status
 
 
 class StatusReporter:
-    def __init__(self, redis_url='0.0.0.0'):
+    def __init__(self, safe_dict=None):
         self.logger = logging.getLogger(__name__)
-        self.r = redis.StrictRedis(host=redis_url, port=6379, db=0)
-        self.redis_available = self.is_redis_available()
-        self.status = {}
+
+        if safe_dict is not None:
+            with safe_dict as status_dict:
+                status_dict['status'] = {}
+        else:
+            self.logger.error('No dictionary available!')
+        self.communication_dict = safe_dict
+
         self.update_status(Status.INITIALIZING)
         self.report = []
 
+    def can_report_status(self):
+        if 'status' in self.communication_dict:
+            return True
+        return False
+
     def update_status(self, status, extra_data=None):
-        self.status = {'status': status.value, 'data': extra_data}
-        if self.redis_available:
-            self.r.set('dob-status', dumps(self.status))
+        if self.can_report_status():
+            status = {'status': status.value, 'data': extra_data}
+            with self.communication_dict as comm_dict:
+                comm_dict['status'] = status
 
     def save_report(self, comment_id, sources):
         self.report.append([comment_id, sources])
 
     def get_status(self):
-        return self.status
-
-    def is_redis_available(self):
-        try:
-            # getting None returns None or throws an exception
-            self.r.get(None)
-        except (redis.exceptions.ConnectionError,
-                redis.exceptions.BusyLoadingError):
-            return False
-        return True
+        if self.can_report_status():
+            return self.communication_dict['status']
 
     def clear_status(self):
-        if self.redis_available:
-            self.r.delete('dob-status')
+        if self.can_report_status():
+            with self.communication_dict as comm_dict:
+                comm_dict['status'] = {}

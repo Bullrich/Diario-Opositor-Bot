@@ -3,14 +3,14 @@
 import argparse
 import logging
 import sys
-
-import redis
+import time
+from deprecated import deprecated
 
 from behaviour import Behaviour
 
 
 class DiarioOpositorBot:
-    def __init__(self, log_level=logging.DEBUG, signature='', redis_url='0.0.0.0'):
+    def __init__(self, log_level=logging.DEBUG, signature='', thread_safe_dict=None):
         args = self.get_args()
         if args['verbose']:
             log_level = logging.DEBUG
@@ -20,8 +20,8 @@ class DiarioOpositorBot:
         self.logger = self.create_logger(log_level)
         if signature != '':
             self.logger.info('Signature is %s', signature)
-        self.redis_url = redis_url
-        self.behavior = Behaviour.Behavior(signature, 1, redis_url=self.redis_url)
+        self.communication_dict = thread_safe_dict
+        self.behavior = Behaviour.Behavior(signature, 1, thread_safe_dict)
 
     def get_args(self):
         parser = argparse.ArgumentParser(description='Process the commands.')
@@ -41,6 +41,11 @@ class DiarioOpositorBot:
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         ch.setFormatter(formatter)
         lg.addHandler(ch)
+        fh = logging.FileHandler('doby.log')
+        fh.setLevel(logging.DEBUG)
+        fh.setFormatter(formatter)
+        lg.addHandler(fh)
+        lg.info('-- Starting new session at %s' % time.time())
         return lg
 
     def start(self):
@@ -50,31 +55,33 @@ class DiarioOpositorBot:
 
         self.logger.info('Initializing Diario Opositor Bot!')
         self.behavior.read_and_respond()
-        print('Finished a round!')
+        self.behavior.status.clear_status()
+        self.logger.info('Finished the round')
 
+    @deprecated(reason='I find it easier to have one Thread spawn and die instead of recycling the thread')
     def start_server(self):
         from time import sleep
-        r = redis.StrictRedis(host=self.redis_url, port=6379, db=0)
-        rsub = r.pubsub()
-        rsub.subscribe("dob-start")
         loop = True
+        import json
         while loop:
-            for m in rsub.listen():
-                print(m)
-                if m['type'] == "message":
-                    if m['data'] == b'start':
-                        print('Starting bot!')
-                        self.start()
-                        sleep(15)
-                    if m['data'] == b'end':
-                        self.behavior.status.clear_status()
-                        loop = False
-            sleep(0.5)
+            print(json.dumps(self.communication_dict))
+            current_command = self.communication_dict['command']['action']
+            if current_command == 'start':
+                self.logger.info('Starting bot')
+                # reset command so that a loop isn't forced to loop again
+                with self.communication_dict as comm_dict:
+                    comm_dict['command'] = {'action': 'working'}
+                self.start()
+                sleep(10)
+            elif current_command == 'end':
+                self.behavior.status.clear_status()
+                loop = False
+            sleep(5)
         self.logger.info('Killing thread')
         sys.exit()
 
 
 if __name__ == '__main__':
     print('Running bot!')
-    dob = DiarioOpositorBot(log_level=logging.INFO)
+    dob = DiarioOpositorBot(log_level=logging.INFO, thread_safe_dict={})
     dob.start()

@@ -5,3 +5,4 @@ pyyaml
 bottle
 redis
 pyfiglet
+Deprecated

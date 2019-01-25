@@ -4,10 +4,10 @@ import os
 def get_credentials():
     return {
         'reddit': {
-            'username': os.environ['USERNAME'],
-            'password': os.environ['PASSWORD'],
-            'client_id': os.environ['CLIENT_ID'],
-            'client_secret': os.environ['CLIENT_SECRET']
+            'username': os.environ['REDDIT_USERNAME'],
+            'password': os.environ['REDDIT_PASSWORD'],
+            'client_id': os.environ['REDDIT_CLIENT_ID'],
+            'client_secret': os.environ['REDDIT_CLIENT_SECRET']
         },
         'firebase': {
             'apikey': os.environ['FIREBASE_API_KEY'],

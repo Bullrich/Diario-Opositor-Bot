@@ -13,14 +13,14 @@ from .rss import RssSearcher, generate_urls, encode_list
 
 
 class Behavior:
-    def __init__(self, signature='', pause=1, redis_url='0.0.0.0'):
+    def __init__(self, signature='', pause=1, thread_safe_dict=None):
         self.logger = logging.getLogger(__name__)
         self.logger.info("Initializing behaviour")
         credentials = fetch_credentials()
         self.reddit = RedditController.RedditController(credentials['reddit'])
         self.database = FirebaseController.FirebaseController(credentials['firebase'])
         self.commenter = Commenter.Commenter(signature)
-        self.status = StatusReporter.StatusReporter(redis_url)
+        self.status = StatusReporter.StatusReporter(thread_safe_dict)
         self.rss = self.create_rss_searcher()
         self.pause = pause
 
