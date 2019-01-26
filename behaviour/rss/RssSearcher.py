@@ -13,6 +13,25 @@ from feedparser import parse
 from behaviour.StatusReporter import Status
 
 
+def get_list_from_string(s):
+    """ returns a list of lines """
+    return s.strip().splitlines()
+
+
+def get_text_from_feed_entry(entry):
+    """ returns a dict from entry containing text and link """
+    return {'text': entry.title + '\n' + entry.summary, 'link': entry.link}
+
+
+def workaround_parse(url):
+    p = parse(url)
+    if not p['entries'] and "not well-formed" in str(p['bozo_exception']):
+        rss1 = requests.get(url).content.decode("utf-8")
+        rss1 = rss1.replace("utf-8", "unicode")
+        p = parse(rss1)
+    return p['entries']
+
+
 class RssSearcher:
     def __init__(self, urls, filtered_words, status_reporter):
         import logging
@@ -21,14 +40,6 @@ class RssSearcher:
         self.filtered_words = filtered_words
         self.status = status_reporter
         self.raw_data = {}
-
-    def get_list_from_string(self, s):
-        """ returns a list of lines """
-        return s.strip().splitlines()
-
-    def get_text_from_feed_entry(self, entry):
-        """ returns a dict from entry containing text and link """
-        return {'text': entry.title + '\n' + entry.summary, 'link': entry.link}
 
     def matches_word(self, text, word):
         """ checks if text matches word """
@@ -43,19 +54,11 @@ class RssSearcher:
         """ checks if text matches any of the keywords """
         return reduce(or_, [self.matches_word(text, word) for word in keywords])
 
-    def workaround_parse(self, url):
-        p = parse(url)
-        if not p['entries'] and "not well-formed" in str(p['bozo_exception']):
-            rss1 = requests.get(url).content.decode("utf-8")
-            rss1 = rss1.replace("utf-8", "unicode")
-            p = parse(rss1)
-        return p['entries']
-
     def cached_raw_data_list(self, site, url):
         if site not in self.raw_data:
             self.status.update_status(Status.GETTING_ARTICLES)
             print(site + ' / ' + str(url) + ' is not in raw data cache!')
-            self.raw_data[site] = self.workaround_parse(url)
+            self.raw_data[site] = workaround_parse(url)
         return self.raw_data[site]
 
     # TODO: make the rss searcher store all the src instead of re downloading them all the time
@@ -65,7 +68,7 @@ class RssSearcher:
 
         entries = sum([raw_data for raw_data in raw_data_list], [])
 
-        required_data = [self.get_text_from_feed_entry(entry) for entry in entries]
+        required_data = [get_text_from_feed_entry(entry) for entry in entries]
 
         self.logger.debug('searching {} entries...'.format(len(required_data)))
         results = list(filter(lambda data: self.matches_any_word(data['text'], keywords), required_data))
@@ -75,8 +78,7 @@ class RssSearcher:
             short_result = []
             self.logger.debug('{} result(s) found'.format(result_count))
 
-            for i, result in enumerate(results):
-                # print('downloading {} of {}...'.format(i + 1, result_count), urlretrieve(result['link']))
+            for result in enumerate(results):
                 self.logger.debug('%s done', key)
                 short_result.append(result)
             return results

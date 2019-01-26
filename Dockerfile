@@ -1,6 +1,9 @@
 FROM python:3
 
-MAINTAINER Javier Bullrich "javierbullrich@gmail.com"
+LABEL org.label-schema.license="GPL-3.0" \
+      org.label-schema.vcs-url="https://github.com/Bullrich/Diario-Opositor-Bot" \
+      org.label-schema.vendor="Diario-Opositor-Bot" \
+      maintainer="Javier Bullrich <javierbullrich@gmail.com>"
 
 RUN mkdir /etc/dob
 

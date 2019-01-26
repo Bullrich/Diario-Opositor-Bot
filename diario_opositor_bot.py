@@ -9,44 +9,45 @@ from deprecated import deprecated
 from behaviour import Behaviour
 
 
+def get_args():
+    parser = argparse.ArgumentParser(description='Process the commands.')
+    parser.add_argument('-v', '--verbose', const=True, nargs='?', help='Be verbose with the logs')
+    parser.add_argument('-s', '--signature', help='Define a signature for the bot')
+    parser.add_argument('-r', '--repeat', const=True, nargs='?', help='Repeat the loops once it finish')
+    return vars(parser.parse_args())
+
+
+def create_logger(debug_level=logging.DEBUG):
+    lg = logging.getLogger()
+    lg_level = debug_level
+    lg.setLevel(lg_level)
+
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(lg_level)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    lg.addHandler(ch)
+    fh = logging.FileHandler('doby.log')
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(formatter)
+    lg.addHandler(fh)
+    lg.info('-- Starting new session at %s' % time.time())
+    return lg
+
+
 class DiarioOpositorBot:
     def __init__(self, log_level=logging.DEBUG, signature='', thread_safe_dict=None):
-        args = self.get_args()
+        args = get_args()
         if args['verbose']:
             log_level = logging.DEBUG
         if args['signature']:
             signature = args['signature']
 
-        self.logger = self.create_logger(log_level)
+        self.logger = create_logger(log_level)
         if signature != '':
             self.logger.info('Signature is %s', signature)
         self.communication_dict = thread_safe_dict
         self.behavior = Behaviour.Behavior(signature, 1, thread_safe_dict)
-
-    def get_args(self):
-        parser = argparse.ArgumentParser(description='Process the commands.')
-        parser.add_argument('-v', '--verbose', const=True, nargs='?', help='Be verbose with the logs')
-        parser.add_argument('-s', '--signature', help='Define a signature for the bot')
-        parser.add_argument('-r', '--repeat', const=True, nargs='?', help='Repeat the loops once it finish')
-        return vars(parser.parse_args())
-
-    @staticmethod
-    def create_logger(debug_level=logging.DEBUG):
-        lg = logging.getLogger()
-        lg_level = debug_level
-        lg.setLevel(lg_level)
-
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(lg_level)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        ch.setFormatter(formatter)
-        lg.addHandler(ch)
-        fh = logging.FileHandler('doby.log')
-        fh.setLevel(logging.DEBUG)
-        fh.setFormatter(formatter)
-        lg.addHandler(fh)
-        lg.info('-- Starting new session at %s' % time.time())
-        return lg
 
     def start(self):
         from pyfiglet import Figlet

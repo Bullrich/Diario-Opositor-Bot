@@ -10,5 +10,5 @@ class ThreadSafeDict(dict):
         self._lock.acquire()
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, type_, value, traceback):
         self._lock.release()

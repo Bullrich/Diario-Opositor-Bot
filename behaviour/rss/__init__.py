@@ -13,5 +13,5 @@ def generate_urls(url_data):
     return newspapers
 
 
-def encode_list(list):
-    return [x.encode('utf-8') for x in list]
+def encode_list(list_to_encode):
+    return [x.encode('utf-8') for x in list_to_encode]
